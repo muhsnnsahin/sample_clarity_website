@@ -31,7 +31,7 @@
     }
     #map {
       width: 100%;
-      height: calc(100vh - 56px); /* Navbar yüksekliği kadar çıkar */
+      height: calc(100vh - 56px);
     }
   </style>
 </head>
@@ -57,27 +57,72 @@
 
   <!-- Sayfa Başlığı -->
   <div>
-    <h1 class="text-center">Türkiye Haritası (Leaflet)</h1>
+    <h1 class="text-center mt-3">Türkiye Haritası (Leaflet)</h1>
     <div id="map"></div>
+  </div>
+
+  <!-- Modal -->
+  <div class="modal fade" id="infoModal" tabindex="-1" aria-labelledby="infoModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <form id="contactForm" novalidate>
+          <div class="modal-header">
+            <h5 class="modal-title" id="infoModalLabel">İletişim Formu</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Kapat"></button>
+          </div>
+          <div class="modal-body">
+            <div class="mb-3">
+              <label for="ad" class="form-label">Ad</label>
+              <input type="text" class="form-control" id="ad" required />
+              <div class="invalid-feedback">Lütfen adınızı giriniz.</div>
+            </div>
+            <div class="mb-3">
+              <label for="soyad" class="form-label">Soyad</label>
+              <input type="text" class="form-control" id="soyad" required />
+              <div class="invalid-feedback">Lütfen soyadınızı giriniz.</div>
+            </div>
+            <div class="mb-3">
+              <label for="telefon" class="form-label">Telefon Numarası</label>
+              <input type="tel" class="form-control" id="telefon" pattern="^\+?\d{10,15}$" required />
+              <div class="invalid-feedback">Geçerli bir telefon numarası giriniz.</div>
+            </div>
+            <div class="mb-3">
+              <label for="email" class="form-label">E-posta</label>
+              <input type="email" class="form-control" id="email" required />
+              <div class="invalid-feedback">Geçerli bir e-posta adresi giriniz.</div>
+            </div>
+            <div class="mb-3">
+              <label for="mesaj" class="form-label">Mesaj</label>
+              <textarea class="form-control" id="mesaj" rows="3" required></textarea>
+              <div class="invalid-feedback">Lütfen mesajınızı yazınız.</div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="submit" class="btn btn-primary">Gönder</button>
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Kapat</button>
+          </div>
+        </form>
+      </div>
+    </div>
   </div>
 
   <!-- Leaflet JS -->
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 
-  <!-- Harita Scripti -->
+  <!-- Harita ve Modal Scripti -->
   <script>
     var map = L.map('map').setView([39.92077, 32.85411], 6); // Ankara merkezi
 
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '&copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> katkıcıları'
+      attribution: '&copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> katkıcıları'
     }).addTo(map);
 
     const locations = [
-      {lat: 41.0082, lng: 28.9784, address: "İstanbul, Türkiye"},
-      {lat: 38.4237, lng: 27.1428, address: "İzmir, Türkiye"},
-      {lat: 37.8713, lng: 32.4846, address: "Konya, Türkiye"},
-      {lat: 36.8969, lng: 30.7133, address: "Antalya, Türkiye"},
-      {lat: 40.1826, lng: 29.0669, address: "Bursa, Türkiye"}
+      { lat: 41.0082, lng: 28.9784, address: "İstanbul, Türkiye" },
+      { lat: 38.4237, lng: 27.1428, address: "İzmir, Türkiye" },
+      { lat: 37.8713, lng: 32.4846, address: "Konya, Türkiye" },
+      { lat: 36.8969, lng: 30.7133, address: "Antalya, Türkiye" },
+      { lat: 40.1826, lng: 29.0669, address: "Bursa, Türkiye" }
     ];
 
     locations.forEach(loc => {
@@ -85,13 +130,29 @@
       marker.bindPopup(`<b>${loc.address}</b><br>Koordinatlar: ${loc.lat}, ${loc.lng}`);
       marker.on('mouseover', () => marker.openPopup());
       marker.on('mouseout', () => marker.closePopup());
+      marker.on('click', () => {
+        const modal = new bootstrap.Modal(document.getElementById('infoModal'));
+        modal.show();
+      });
+    });
+
+    // Form Validasyonu
+    document.getElementById("contactForm").addEventListener("submit", function(event) {
+      event.preventDefault(); // Sayfa yenilenmesin
+      const form = event.target;
+
+      if (form.checkValidity()) {
+        alert("Form başarıyla gönderildi!");
+        form.reset();
+        form.classList.remove("was-validated");
+        bootstrap.Modal.getInstance(document.getElementById('infoModal')).hide();
+      } else {
+        form.classList.add("was-validated");
+      }
     });
   </script>
 
-  <script src="main.js"></script>
-    
-  <!-- Bootstrap JS (isteğe bağlı) -->
+  <!-- Bootstrap JS -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
-
